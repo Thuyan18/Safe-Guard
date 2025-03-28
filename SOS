@@ -1,0 +1,192 @@
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class SOSAlertActivity extends AppCompatActivity {
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private ImageView sosButton;
+    private FusedLocationProviderClient fusedLocationClient;
+    private ExecutorService executorService;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sos_alert);
+
+        // Khởi tạo dịch vụ định vị và luồng xử lý
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        executorService = Executors.newSingleThreadExecutor();
+
+        // Ánh xạ nút SOS
+        sosButton = findViewById(R.id.sosIcon);
+
+        // Thiết lập sự kiện nhấn nút SOS
+        sosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activateSOSAlert();
+            }
+        });
+    }
+
+    private void activateSOSAlert() {
+        // Kiểm tra quyền truy cập vị trí
+        if (checkLocationPermissions()) {
+            // Lấy vị trí hiện tại
+            getCurrentLocation();
+        } else {
+            // Yêu cầu cấp quyền nếu chưa được phép
+            requestLocationPermissions();
+        }
+    }
+
+    private boolean checkLocationPermissions() {
+        return ContextCompat.checkSelfPermission(this, 
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
+    }
+
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+            .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        // Gửi cảnh báo SOS với thông tin vị trí
+                        sendSOSAlertToPolice(location);
+                    } else {
+                        Toast.makeText(SOSAlertActivity.this, 
+                            "Không thể xác định vị trí", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+    }
+
+    private void sendSOSAlertToPolice(final Location location) {
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // URL API của cảnh sát (đây là URL ví dụ, bạn phải thay thế bằng API thực)
+                    URL url = new URL("https://api.police.gov.vn/emergency");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    
+                    // Cấu hình kết nối
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setDoOutput(true);
+
+                    // Tạo JSON chứa thông tin vị trí
+                    JSONObject jsonInput = new JSONObject();
+                    jsonInput.put("latitude", location.getLatitude());
+                    jsonInput.put("longitude", location.getLongitude());
+                    jsonInput.put("timestamp", System.currentTimeMillis());
+                    jsonInput.put("deviceId", getDeviceId());
+
+                    // Ghi dữ liệu vào request
+                    try (OutputStream os = connection.getOutputStream()) {
+                        byte[] input = jsonInput.toString().getBytes("utf-8");
+                        os.write(input, 0, input.length);
+                    }
+
+                    // Đọc phản hồi từ server
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SOSAlertActivity.this, 
+                                    "Đã gửi cảnh báo SOS tới cảnh sát", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SOSAlertActivity.this, 
+                                    "Gửi cảnh báo thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    connection.disconnect();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(SOSAlertActivity.this, 
+                                "Lỗi kết nối: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    // Lấy ID thiết bị (cần thêm quyền READ_PHONE_STATE)
+    private String getDeviceId() {
+        // Lưu ý: Phương thức này cần được cập nhật để tuân thủ các quy định bảo mật
+        return "unique_device_id";
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, 
+                                           @NonNull String[] permissions, 
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Nếu được cấp quyền, lấy vị trí
+                getCurrentLocation();
+            } else {
+                Toast.makeText(this, "Quyền truy cập vị trí bị từ chối", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Đóng ExecutorService khi activity bị hủy
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+    }
+}
