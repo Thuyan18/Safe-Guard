@@ -1,0 +1,110 @@
+// Sửa lỗi ViewPager không hiển thị Fragment đúng cách
+// EmergencyPagerAdapter.java - Thêm vào phương thức createFragment
+
+@NonNull
+@Override
+public Fragment createFragment(int position) {
+    // Tạo fragment mới mỗi lần để tránh tình trạng tái sử dụng
+    switch (position) {
+        case 0:
+            return new AlertFragment();
+        case 1:
+            return new HotlineFragment();
+        case 2:
+            return new PoliceFragment();
+        case 3:
+            return new HospitalFragment();
+        default:
+            return new AlertFragment();
+    }
+}
+
+// Sửa lỗi màn hình quay ngang làm mất trạng thái
+// MainActivity.java - Thêm vào onCreate
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    
+    viewPager = findViewById(R.id.viewPager);
+    pagerAdapter = new EmergencyPagerAdapter(this);
+    viewPager.setAdapter(pagerAdapter);
+    
+    // Lưu và khôi phục vị trí khi màn hình xoay
+    if (savedInstanceState != null) {
+        int position = savedInstanceState.getInt("PAGER_POSITION", 0);
+        viewPager.setCurrentItem(position);
+    }
+}
+
+@Override
+protected void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    // Lưu vị trí hiện tại của ViewPager
+    outState.putInt("PAGER_POSITION", viewPager.getCurrentItem());
+}
+
+// Sửa lỗi không thể gọi điện thoại do thiếu quyền
+// PoliceFragment.java và HospitalFragment.java - Kiểm tra quyền trước khi gọi
+
+// Trong PoliceFragment và HospitalFragment
+private void makePhoneCall(String phoneNumber) {
+    // Kiểm tra quyền CALL_PHONE
+    if (ContextCompat.checkSelfPermission(requireContext(), 
+            Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+        // Yêu cầu quyền nếu chưa có
+        requestPermissions(new String[]{Manifest.permission.CALL_PHONE}, 1);
+    } else {
+        // Đã có quyền, thực hiện cuộc gọi
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        startActivity(intent);
+    }
+}
+
+@Override
+public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    if (requestCode == 1) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Đã được cấp quyền, thực hiện lại cuộc gọi
+            makePhoneCall("113"); // hoặc "115" cho HospitalFragment
+        }
+    }
+}
+
+// Sửa lỗi không có hình ảnh
+// Thêm vào AndroidManifest.xml
+// Đảm bảo có thư mục drawable với các file hình ảnh cần thiết
+/*
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ...>
+    <application
+        ...
+        android:icon="@drawable/app_icon"
+        android:roundIcon="@drawable/app_icon_round"
+        ...>
+        
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+</manifest>
+*/
+
+// Sửa lỗi ViewPager swipe
+// MainActivity.java - Thêm vào onCreate
+
+// Vô hiệu hóa vuốt ngang nếu cần
+viewPager.setUserInputEnabled(true); // true cho phép vuốt, false vô hiệu hóa
+
+// Thêm animation mượt hơn
+viewPager.setPageTransformer(new MarginPageTransformer(50));
