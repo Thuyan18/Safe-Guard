@@ -1,0 +1,77 @@
+// EmergencyAppTest.java
+package com.example.emergencyapp;
+
+import android.content.Intent;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
+public class EmergencyAppTest {
+
+    @Test
+    public void testNavigationFlow() {
+        // Khởi chạy MainActivity
+        ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
+        
+        // Kiểm tra xem màn hình đầu tiên (AlertFragment) đã hiển thị chưa
+        Espresso.onView(ViewMatchers.withId(R.id.alertTitleText))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        
+        // Click vào nút Next để chuyển đến HotlineFragment
+        Espresso.onView(ViewMatchers.withId(R.id.nextButton))
+                .perform(ViewActions.click());
+        
+        // Kiểm tra xem HotlineFragment đã hiển thị chưa
+        Espresso.onView(ViewMatchers.withId(R.id.titleText))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        
+        // Click vào container Police để chuyển đến PoliceFragment
+        Espresso.onView(ViewMatchers.withId(R.id.policeContainer))
+                .perform(ViewActions.click());
+        
+        // Kiểm tra xem PoliceFragment đã hiển thị chưa
+        Espresso.onView(ViewMatchers.withId(R.id.policeText))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        
+        // Quay lại HotlineFragment
+        Espresso.onView(ViewMatchers.withId(R.id.backButton))
+                .perform(ViewActions.click());
+        
+        // Click vào container Hospital để chuyển đến HospitalFragment
+        Espresso.onView(ViewMatchers.withId(R.id.hospitalContainer))
+                .perform(ViewActions.click());
+        
+        // Kiểm tra xem HospitalFragment đã hiển thị chưa
+        Espresso.onView(ViewMatchers.withId(R.id.hospitalText))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+    }
+}
+
+// Thêm phương thức trong MainActivity để kiểm tra ViewPager
+public class MainActivity extends AppCompatActivity {
+    // ... code đã có
+    
+    // Thêm phương thức này để kiểm tra trong quá trình phát triển
+    public void testViewPager() {
+        if (viewPager != null && pagerAdapter != null) {
+            boolean isAdapterSet = viewPager.getAdapter() != null;
+            int itemCount = pagerAdapter.getItemCount();
+            
+            // Log để kiểm tra
+            Log.d("EmergencyAppTest", "ViewPager adapter set: " + isAdapterSet);
+            Log.d("EmergencyAppTest", "Adapter item count: " + itemCount);
+        } else {
+            Log.e("EmergencyAppTest", "ViewPager or Adapter is null");
+        }
+    }
+}
