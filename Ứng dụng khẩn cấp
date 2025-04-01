@@ -1,0 +1,230 @@
+// MainActivity.java
+package com.example.emergencyapp;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
+
+public class MainActivity extends AppCompatActivity {
+    
+    private ViewPager2 viewPager;
+    private EmergencyPagerAdapter pagerAdapter;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        viewPager = findViewById(R.id.viewPager);
+        pagerAdapter = new EmergencyPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+    }
+}
+
+// EmergencyPagerAdapter.java
+package com.example.emergencyapp;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+public class EmergencyPagerAdapter extends FragmentStateAdapter {
+    
+    public EmergencyPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
+    }
+    
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+        switch (position) {
+            case 0:
+                return new AlertFragment();
+            case 1:
+                return new HotlineFragment();
+            case 2:
+                return new PoliceFragment();
+            case 3:
+                return new HospitalFragment();
+            default:
+                return new AlertFragment();
+        }
+    }
+    
+    @Override
+    public int getItemCount() {
+        return 4; // Số lượng màn hình
+    }
+}
+
+// AlertFragment.java
+package com.example.emergencyapp;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+
+public class AlertFragment extends Fragment {
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_alert, container, false);
+        
+        Button nextButton = view.findViewById(R.id.nextButton);
+        nextButton.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(1);
+        });
+        
+        return view;
+    }
+}
+
+// HotlineFragment.java
+package com.example.emergencyapp;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+
+public class HotlineFragment extends Fragment {
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_hotline, container, false);
+        
+        ImageButton backButton = view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(0);
+        });
+        
+        View policeContainer = view.findViewById(R.id.policeContainer);
+        policeContainer.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(2);
+        });
+        
+        View hospitalContainer = view.findViewById(R.id.hospitalContainer);
+        hospitalContainer.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(3);
+        });
+        
+        return view;
+    }
+}
+
+// PoliceFragment.java
+package com.example.emergencyapp;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+
+public class PoliceFragment extends Fragment {
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_police, container, false);
+        
+        ImageButton backButton = view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(1);
+        });
+        
+        ImageButton callButton = view.findViewById(R.id.callButton);
+        callButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:113"));
+            startActivity(intent);
+        });
+        
+        Button phoneButton = view.findViewById(R.id.phoneButton);
+        phoneButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:113"));
+            startActivity(intent);
+        });
+        
+        return view;
+    }
+}
+
+// HospitalFragment.java
+package com.example.emergencyapp;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+
+public class HospitalFragment extends Fragment {
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_hospital, container, false);
+        
+        ImageButton backButton = view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            viewPager.setCurrentItem(1);
+        });
+        
+        ImageButton callButton = view.findViewById(R.id.callButton);
+        callButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:115"));
+            startActivity(intent);
+        });
+        
+        Button phoneButton = view.findViewById(R.id.phoneButton);
+        phoneButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:115"));
+            startActivity(intent);
+        });
+        
+        return view;
+    }
+}
