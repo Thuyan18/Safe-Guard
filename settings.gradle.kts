@@ -19,5 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SGDangki"
+rootProject.name = "SGDangnhap"
 include(":app")
+ 
