@@ -19,6 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "change password2"
+rootProject.name = "SGDangki"
 include(":app")
- 
