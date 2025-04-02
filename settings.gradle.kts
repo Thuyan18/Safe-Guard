@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SGDangnhap"
+rootProject.name = "Change PW"
 include(":app")
  
