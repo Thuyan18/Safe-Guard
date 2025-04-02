@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,13 +11,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SafeLiving"
+        android:theme="@style/Theme.Tracklocation2"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.SafeLiving">
+            android:theme="@style/Theme.Tracklocation2">
+            <meta-data
+                android:name="com.google.android.geo.AIzaSyBM2GiL9RvSK8FRnUcnw2MFp-vKPoui0HM"
+                android:value= "AIzaSyBM2GiL9RvSK8FRnUcnw2MFp-vKPoui0HM" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,6 +28,5 @@
             </intent-filter>
         </activity>
     </application>
-
 
 </manifest>
