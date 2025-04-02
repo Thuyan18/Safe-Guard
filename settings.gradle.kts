@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "text"
+rootProject.name = "home"
 include(":app")
  
