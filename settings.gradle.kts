@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "home"
+rootProject.name = "ChangePW2"
 include(":app")
  
