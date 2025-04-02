@@ -33,8 +33,8 @@ Username is "admin"
 Password is "admin"
 
 6. Project members include:
-Nguyen Dang Minh Tam - Leader
-Nguyen Duy Phuong
-Vo Thuy An
-Phan Tien Dat
+Nguyen Dang Minh Tam - Leader,
+Nguyen Duy Phuong,
+Vo Thuy An,
+Phan Tien Dat,
 Kim Ngoc Viet Toan
